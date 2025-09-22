@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRODUCT WISE ORDER CALCULATOR</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc; /* Light theme background */
+            transition: background-color 0.3s ease;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1-px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .btn-primary {
+            background-color: #3b82f6; /* Blue */
+            color: #fff;
+        }
+        .btn-secondary {
+            background-color: #ef4444; /* Red */
+            color: #fff;
+        }
+        .btn-add {
+            background-color: #22c55e; /* Green */
+            color: #fff;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .btn-add:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(34, 197, 94, 0.3);
+        }
+        .btn-disabled {
+            background-color: #cbd5e1; /* Gray */
+            color: #64748b;
+            cursor: not-allowed;
+        }
+        .input-field {
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            width: 100%;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            min-height: 44px; 
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+        }
+
+        .product-row-mobile {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            background-color: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out;
+        }
+        .product-row-mobile:hover {
+            transform: translateX(5px);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* Small, round Reset Button Styling */
+        #reset-btn {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            background-color: #ef4444; /* Red color */
+            color: #fff;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out;
+        }
+        #reset-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* New Info Button Styling */
+        #info-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            background-color: #3b82f6;
+            color: #fff;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out;
+            z-index: 10;
+        }
+        #info-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Manual Modal Styling */
+        #manual-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #manual-modal.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .manual-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 900px;
+            height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        .manual-content h1, .manual-content h2 {
+            font-family: 'Inter', sans-serif;
+            color: #1f2937;
+        }
+        .manual-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .manual-content h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .manual-content p, .manual-content li {
+            color: #4b5563;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+        .manual-content ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+        }
+
+        #close-manual-btn {
+            position: sticky;
+            top: 0;
+            right: 0;
+            margin-top: -1rem;
+            margin-right: -1rem;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            background-color: #ef4444;
+            color: #fff;
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease-in-out;
+            cursor: pointer;
+            z-index: 201;
+        }
+        #close-manual-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Media queries for responsive layout */
+        @media (max-width: 768px) {
+            .grid-header, .product-row-desktop {
+                display: none !important;
+            }
+            .product-row-mobile {
+                display: flex !important;
+                margin-bottom: 1rem;
+            }
+            #info-btn {
+                top: 0.5rem;
+                left: 0.5rem;
+            }
+        }
+        @media (min-width: 769px) {
+            .product-row-mobile {
+                display: none !important;
+            }
+            .grid-header, .product-row-desktop {
+                display: grid !important;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <!-- Modal for general messages -->
+    <div id="modal-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div id="modal-box" class="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm w-full mx-auto">
+            <p id="modal-text" class="text-gray-700 mb-4"></p>
+            <button id="modal-ok-btn" class="btn btn-primary w-full">OK</button>
+        </div>
+    </div>
+
+    <!-- User Manual Modal -->
+    <div id="manual-modal" class="hidden">
+        <div class="manual-content">
+            <button id="close-manual-btn"><i class="fas fa-times"></i></button>
+            <h1 class="text-4xl">User Manual: PRODUCT WISE ORDER CALCULATOR</h1>
+            <p>Welcome to the Order Calculator! This guide will help you understand all the functions of this easy-to-use application.</p>
+            
+            <hr class="my-6 border-gray-200">
+            
+            <h2>1. Start with the "Locked" View</h2>
+            <p>When you first open the app, it's in a **"locked"** state. This is for your protection, to prevent accidental changes to the product details.</p>
+            <ul>
+                <li><strong>What you can do:</strong> You can only enter the number of **strips** or **boxes** you need for a product.</li>
+                <li><strong>What you can't do:</strong> You cannot change product names, PTS values, or any other details.</li>
+            </ul>
+            
+            <hr class="my-6 border-gray-200">
+
+            <h2>2. Placing an Order</h2>
+            <p>To calculate your order, you only need to use the two main input fields:</p>
+            <ul>
+                <li><strong>Unit(strip):</strong> Type the number of strips you want to order.</li>
+                <li><strong>Unit(box):</strong> Type the number of boxes you want to order.</li>
+            </ul>
+            <p><strong>Important:</strong> You should only fill in **one** of these fields per product. The app will automatically calculate the other values for you.</p>
+
+            <hr class="my-6 border-gray-200">
+            
+            <h2>3. Understanding the Calculations</h2>
+            <p>As you type your order, the app instantly updates these columns:</p>
+            <ul>
+                <li><strong>Box Value:</strong> The total value of your order in boxes.</li>
+                <li><strong>Strip Value:</strong> The total value of your order in strips.</li>
+                <li><strong>Net Bill Amount:</strong> The final cost of the product, including tax.</li>
+            </ul>
+            
+            <hr class="my-6 border-gray-200">
+
+            <h2>4. Unlocking and Editing</h2>
+            <p>If you need to change any of the product information or the tax rate, you must first unlock the application.</p>
+            <ol>
+                <li>Click the small, **round red button** with a reload icon in the top right corner.</li>
+                <li>A pop-up message will tell you that the fields are now unlocked.</li>
+                <li>You can now edit any of the fields, including product names, PTS values, box packs, and the **Tax Percentage**.</li>
+                <li>A **delete button (✕)** will also appear next to each product.</li>
+            </ol>
+            
+            <hr class="my-6 border-gray-200">
+
+            <h2>5. Adding and Deleting Products</h2>
+            <ul>
+                <li><strong>Add Product:</strong> Once the app is unlocked, click the **"Add Product"** button. A new, empty row will be added for you to fill in.</li>
+                <li><strong>Delete Product:</strong> When the app is unlocked, click the **"✕"** button next to a product to remove it.</li>
+            </ul>
+            
+            <hr class="my-6 border-gray-200">
+
+            <h2>6. Saving Your Work</h2>
+            <p>After you have made your changes (adding, deleting, or editing products), you should save them:</p>
+            <ul>
+                <li>Click the blue **"Save Changes"** button.</li>
+                <li>The app will automatically lock itself again to protect your data.</li>
+                <li>Your data is saved directly on your device, so it will be there the next time you use the app.</li>
+            </ul>
+            
+            <hr class="my-6 border-gray-200">
+
+            <h2>7. Summary and Charts</h2>
+            <p>The bottom section of the app provides a helpful summary:</p>
+            <ul>
+                <li><strong>Total Order Value:</strong> The total cost of all the products you've ordered, including tax.</li>
+                <li><strong>Total Order Value (Without Tax):</strong> The total cost before any tax is applied.</li>
+                <li><strong>Total Order Value (in Lakhs):</strong> The total order value converted to lakhs (1 Lakh = 100,000).</li>
+                <li><strong>Relative Net Bill Amount Chart:</strong> This pie chart shows you a visual breakdown of your total order, so you can easily see which products are the most valuable.</li>
+            </ul>
+            
+            <hr class="my-6 border-gray-200">
+
+            <h2>8. Selecting Currency</h2>
+            <ul>
+                <li>Use the dropdown menu at the top to change the currency.</li>
+                <li>The total values in the summary will instantly convert to your selected currency.</li>
+            </ul>
+            
+            <hr class="my-6 border-gray-200">
+
+            <p>This app is designed to work perfectly on both computers and mobile phones! The layout will change automatically to fit your screen.</p>
+        </div>
+    </div>
+
+
+    <div class="container space-y-8 fade-in">
+        <header class="text-center relative">
+            <!-- New Info button -->
+            <button id="info-btn" title="View User Manual"><i class="fas fa-info"></i></button>
+            <h1 class="text-2xl sm:text-4xl font-bold text-gray-800 tracking-tight">PRODUCT WISE ORDER CALCULATOR</h1>
+            <p class="text-sm sm:text-lg text-gray-500 mt-2">Developed by S R Software Studio</p>
+        </header>
+
+        <!-- Currency and Actions - Adjusted for better mobile layout -->
+        <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 p-4 sm:p-6 card">
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <label for="currency-selector" class="text-gray-600 font-semibold text-sm sm:text-base">Select Currency:</label>
+                <select id="currency-selector" class="input-field max-w-xs sm:max-w-none">
+                    <option value="INR">INR (₹)</option>
+                    <option value="USD">USD ($)</option>
+                </select>
+                <!-- New Tax Input Field -->
+                <div class="flex items-center space-x-2">
+                    <label for="tax-input" class="text-gray-600 font-semibold text-sm sm:text-base">Tax %:</label>
+                    <input type="number" id="tax-input" value="12" class="input-field w-20 text-center" disabled>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full md:w-auto items-center">
+                <button id="add-product-btn" class="btn btn-add">Add Product</button>
+                <button id="save-btn" class="btn btn-primary">Save Changes</button>
+                <!-- Reset button is now placed here -->
+                <button id="reset-btn" title="Reset All Fields" class="p-2">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Order Items Table/Grid -->
+        <div class="card p-4 sm:p-6 overflow-x-auto">
+            <div id="table-header" class="grid grid-cols-11 gap-2 text-xs sm:text-sm font-semibold text-gray-700 p-2 border-b-2 border-gray-200 grid-header">
+                <div class="col-span-1">Case Size</div>
+                <div class="col-span-1">
+                    Box Pack
+                    <p class="text-xs font-normal text-gray-400 mt-1">! e.g. 1 BOX = 10 STRIP</p>
+                </div>
+                <div class="col-span-1">SKU Name</div>
+                <div class="col-span-1">PTS Value</div>
+                <div class="col-span-1">Price Inc. %</div>
+                <div class="col-span-1">Unit(strip)</div>
+                <div class="col-span-1">Unit(box)</div>
+                <div class="col-span-1">Box Value</div>
+                <div class="col-span-1">Strip Value</div>
+                <div class="col-span-1">Net Bill Amount</div>
+                <div class="col-span-1 text-center">Delete</div>
+            </div>
+            <div id="order-list" class="space-y-4 md:space-y-0">
+                <!-- Data rows will be dynamically inserted here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Summary and Graphics -->
+        <div class="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8">
+            <div class="card p-4 sm:p-6 md:w-1/2">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Summary</h2>
+                <div class="space-y-4">
+                    <!-- New total without tax -->
+                    <div class="flex justify-between items-center text-gray-600">
+                        <span class="font-semibold">Total Order Value (Without Tax):</span>
+                        <span id="total-value-without-tax" class="text-xl sm:text-2xl font-bold text-gray-800">0.00</span>
+                    </div>
+                    <!-- Existing total with tax -->
+                    <div class="flex justify-between items-center text-gray-600">
+                        <span class="font-semibold">Total Order Value:</span>
+                        <span id="total-value" class="text-xl sm:text-2xl font-bold text-gray-800">0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center text-gray-600">
+                        <span class="font-semibold">Total Order Value (in Lakhs):</span>
+                        <span id="total-lakhs" class="text-xl sm:text-2xl font-bold text-gray-800">0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card p-4 sm:p-6 md:w-1/2">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Relative Net Bill Amount</h2>
+                <div class="flex flex-col items-center justify-center">
+                    <canvas id="pie-chart" class="w-full h-64 sm:h-80"></canvas>
+                    <div id="chart-legend" class="mt-4 flex flex-wrap justify-center gap-2 text-xs sm:text-sm"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Use a self-invoking function to avoid global scope pollution.
+        (function() {
+
+            // --- Data and State Management ---
+            const initialData = [
+                { id: 1, caseSize: "144 Box", boxPack: 2, sku: "GALVUS 50", pts: 231.43, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 2, caseSize: "48 Box", boxPack: 6, sku: "GALVUSMET 50/500", pts: 255.39, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 3, caseSize: "48 Box", boxPack: 6, sku: "GALVUSMET 50/850", pts: 262.71, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 4, caseSize: "48 Box", boxPack: 6, sku: "GALVUSMET 50/1000", pts: 270.49, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 5, caseSize: "144 Box", boxPack: 2, sku: "GALVUS OD", pts: 366.43, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 6, caseSize: "", boxPack: 10, sku: "FENOLIP 145", pts: 181, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 7, caseSize: "", boxPack: 10, sku: "BISOFIG 2.5 MG 10'S", pts: 35.36, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 8, caseSize: "", boxPack: 10, sku: "BISOFIG 5 MG 10'S", pts: 51.43, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 9, caseSize: "", boxPack: 10, sku: "BISOFIG AM 2.5 MG 10'S", pts: 44.56, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 10, caseSize: "", boxPack: 10, sku: "BISOFIG AM 5 MG 10'S", pts: 66.04, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 11, caseSize: "", boxPack: 10, sku: "BISOFIG T 2.5 TAB 10s", pts: 69.47, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 12, caseSize: "", boxPack: 10, sku: "BISOFIG T 5 TAB 10s", pts: 80.66, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 13, caseSize: "", boxPack: 10, sku: "BISOFIG D 5 MG 10s", pts: 122.14, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 14, caseSize: "", boxPack: 10, sku: "TRIEXER 1", pts: 90, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 15, caseSize: "", boxPack: 10, sku: "TRIEXER 2", pts: 138, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 16, caseSize: "", boxPack: 10, sku: "PRANDIAL 0.2 MD", pts: 43, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 17, caseSize: "", boxPack: 10, sku: "PRANDIAL 0.3 MD", pts: 64, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 18, caseSize: "", boxPack: 10, sku: "PRANDIAL M 0.2", pts: 44, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 19, caseSize: "", boxPack: 10, sku: "PRANDIAL M 0.3", pts: 73, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 20, caseSize: "", boxPack: 10, sku: "EXERMET GM FORTE 1", pts: 68, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 21, caseSize: "", boxPack: 10, sku: "EXERMET GM FORTE 2", pts: 93, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 22, caseSize: "", boxPack: 10, sku: "EXERMET 500", pts: 23, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 23, caseSize: "", boxPack: 10, sku: "EXERMET 850", pts: 47, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 24, caseSize: "", boxPack: 10, sku: "EXERMET 1000", pts: 44, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 25, caseSize: "", boxPack: 10, sku: "EXERMET GM 501", pts: 89, priceIncrement: 0, unitStrip: null, unitBox: null },
+                { id: 26, caseSize: "", boxPack: 10, sku: "EXERMET GM 502", pts: 123, priceIncrement: 0, unitStrip: null, unitBox: null },
+            ];
+
+            let currentData = JSON.parse(JSON.stringify(initialData));
+            // Always start in a locked state, regardless of saved state
+            let isLocked = true; 
+            let currentTaxRate = 12; // New state variable for tax rate
+            let currencyRates = {
+                'INR': 1,
+                'USD': 0.012, // Placeholder exchange rate
+            };
+
+            const chartColors = ['#f87171', '#fb923c', '#fcd34d', '#4ade80', '#3b82f6', '#818cf8', '#a78bfa', '#e879f9', '#f472b6', '#ef4444', '#f97316', '#eab308', '#22c55e', '#0ea5e9', '#6366f1', '#a855f7', '#d946ef', '#ec4899', '#f43f5e', '#be123c', '#9f1239', '#831843', '#4c0519', '#14532d', '#083344', '#1f2937', '#6b7280'];
+
+            // --- DOM Elements ---
+            const orderList = document.getElementById('order-list');
+            const saveBtn = document.getElementById('save-btn');
+            const addProductBtn = document.getElementById('add-product-btn'); 
+            const resetBtn = document.getElementById('reset-btn');
+            const currencySelector = document.getElementById('currency-selector');
+            const totalValueSpan = document.getElementById('total-value');
+            const totalValueWithoutTaxSpan = document.getElementById('total-value-without-tax'); // New DOM element
+            const totalLakhsSpan = document.getElementById('total-lakhs');
+            const pieChartCanvas = document.getElementById('pie-chart');
+            const pieChartCtx = pieChartCanvas.getContext('2d');
+            const chartLegend = document.getElementById('chart-legend');
+            const modalOverlay = document.getElementById('modal-overlay');
+            const modalText = document.getElementById('modal-text');
+            const modalOkBtn = document.getElementById('modal-ok-btn');
+            const infoBtn = document.getElementById('info-btn');
+            const manualModal = document.getElementById('manual-modal');
+            const closeManualBtn = document.getElementById('close-manual-btn');
+            const taxInput = document.getElementById('tax-input'); // New DOM element
+
+            // --- Helper Functions ---
+            
+            function showModal(message) {
+                modalText.textContent = message;
+                modalOverlay.classList.remove('hidden');
+            }
+
+            modalOkBtn.addEventListener('click', () => {
+                modalOverlay.classList.add('hidden');
+            });
+            
+            function resizeCanvas() {
+                const parent = pieChartCanvas.parentElement;
+                pieChartCanvas.width = parent.clientWidth;
+                pieChartCanvas.height = parent.clientHeight;
+                updateTotalsAndChart();
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+
+
+            function calculateItemValues(item) {
+                const pts = parseFloat(item.pts) || 0;
+                const priceIncrement = parseFloat(item.priceIncrement) || 0;
+                const newPts = pts * (1 + priceIncrement / 100);
+
+                const boxPack = parseFloat(item.boxPack) || 0;
+                const unitStrip = parseFloat(item.unitStrip) || 0;
+                const unitBox = parseFloat(item.unitBox) || 0;
+
+                let stripValue = 0;
+                let boxValue = 0;
+                let totalCalculatedValue = 0;
+
+                if (unitStrip > 0) {
+                    stripValue = newPts * unitStrip;
+                    totalCalculatedValue = stripValue;
+                } else if (unitBox > 0) {
+                    boxValue = newPts * boxPack * unitBox;
+                    totalCalculatedValue = boxValue;
+                }
+                
+                // Calculate net bill amount using the current tax rate
+                const taxRate = parseFloat(taxInput.value) || 0;
+                const netBillAmount = totalCalculatedValue > 0 ? totalCalculatedValue * (1 + taxRate / 100) : 0;
+                
+                return {
+                    newPts,
+                    boxValue: boxValue.toFixed(2),
+                    stripValue: stripValue.toFixed(2),
+                    netBillAmount: netBillAmount.toFixed(2),
+                    totalCalculatedValue: totalCalculatedValue.toFixed(2)
+                };
+            }
+
+            function renderItem(item) {
+                const itemValues = calculateItemValues(item);
+
+                // Desktop View
+                const desktopRow = document.createElement('div');
+                desktopRow.className = 'grid grid-cols-11 gap-2 sm:gap-4 items-center p-2 border-b border-gray-100 transition-colors duration-200 hover:bg-blue-50 product-row-desktop';
+                desktopRow.id = `desktop-item-${item.id}`;
+                desktopRow.innerHTML = `
+                    <div><input type="text" id="caseSize-${item.id}" value="${item.caseSize || ''}" class="input-field text-xs sm:text-base" ${isLocked ? 'disabled' : ''}></div>
+                    <div><input type="number" id="boxPack-${item.id}" value="${item.boxPack || ''}" class="input-field text-xs sm:text-base" ${isLocked ? 'disabled' : ''}></div>
+                    <div><input type="text" id="sku-${item.id}" value="${item.sku || ''}" class="input-field text-xs sm:text-base" ${isLocked ? 'disabled' : ''}></div>
+                    <div><input type="number" step="0.01" id="pts-${item.id}" value="${item.pts}" class="input-field text-xs sm:text-base" ${isLocked ? 'disabled' : ''}></div>
+                    <div><input type="number" step="0.01" id="priceIncrement-${item.id}" value="${item.priceIncrement || 0}" class="input-field text-xs sm:text-base" ${isLocked ? 'disabled' : ''}></div>
+                    <div><input type="number" id="unitStrip-${item.id}" value="${item.unitStrip || ''}" class="input-field text-xs sm:text-base"></div>
+                    <div><input type="number" id="unitBox-${item.id}" value="${item.unitBox || ''}" class="input-field text-xs sm:text-base"></div>
+                    <div><span id="boxValue-${item.id}" class="text-xs sm:text-base">${itemValues.boxValue}</span></div>
+                    <div><span id="stripValue-${item.id}" class="text-xs sm:text-base">${itemValues.stripValue}</span></div>
+                    <div><span id="netBillAmount-${item.id}" class="text-xs sm:text-base">${itemValues.netBillAmount}</span></div>
+                    <div class="flex justify-center items-center">
+                        <button class="delete-btn text-red-500 hover:text-red-700 font-bold text-lg p-2 rounded-full hover:bg-gray-100 transition-colors duration-200" title="Delete product" ${isLocked ? 'style="display: none;"' : ''}>✕</button>
+                    </div>
+                `;
+                desktopRow.querySelector('.delete-btn').onclick = () => deleteItem(item.id);
+                orderList.appendChild(desktopRow);
+
+                // Mobile View
+                const mobileRow = document.createElement('div');
+                mobileRow.className = 'space-y-4 p-4 border-b border-gray-200 product-row-mobile';
+                mobileRow.id = `mobile-item-${item.id}`;
+                mobileRow.innerHTML = `
+                    <div class="flex justify-between items-center">
+                         <div class="flex flex-col flex-grow">
+                            <span class="font-semibold text-gray-600">SKU Name</span>
+                            <input type="text" id="sku-${item.id}" value="${item.sku || ''}" class="input-field mt-1" ${isLocked ? 'disabled' : ''}>
+                        </div>
+                        <button class="delete-btn text-red-500 hover:text-red-700 font-bold text-lg p-2 rounded-full hover:bg-gray-100 transition-colors duration-200" title="Delete product" ${isLocked ? 'style="display: none;"' : ''}>✕</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-600">Case Size</span>
+                            <input type="text" id="caseSize-${item.id}" value="${item.caseSize || ''}" class="input-field" ${isLocked ? 'disabled' : ''}>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-600">Box Pack</span>
+                            <p class="text-xs font-normal text-gray-400">! e.g. 1 BOX = 10 STRIP</p>
+                            <input type="number" id="boxPack-${item.id}" value="${item.boxPack || ''}" class="input-field mt-1" ${isLocked ? 'disabled' : ''}>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-600">PTS Value</span>
+                            <input type="number" step="0.01" id="pts-${item.id}" value="${item.pts}" class="input-field" ${isLocked ? 'disabled' : ''}>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-600">Price Inc. %</span>
+                            <input type="number" step="0.01" id="priceIncrement-${item.id}" value="${item.priceIncrement || 0}" class="input-field" ${isLocked ? 'disabled' : ''}>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-600">Unit(strip)</span>
+                            <input type="number" id="unitStrip-${item.id}" value="${item.unitStrip || ''}" class="input-field">
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-600">Unit(box)</span>
+                            <input type="number" id="unitBox-${item.id}" value="${item.unitBox || ''}" class="input-field">
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center p-2 rounded-md bg-gray-100">
+                        <span class="text-sm font-semibold text-gray-600">Net Bill Amount</span>
+                        <span id="netBillAmount-${item.id}" class="text-xl font-bold text-gray-800">${itemValues.netBillAmount}</span>
+                    </div>
+                `;
+                mobileRow.querySelector('.delete-btn').onclick = () => deleteItem(item.id);
+                orderList.appendChild(mobileRow);
+            }
+
+            function updateCalculations(item) {
+                const itemValues = calculateItemValues(item);
+                
+                const desktopBoxValueElement = document.getElementById(`boxValue-${item.id}`);
+                const desktopStripValueElement = document.getElementById(`stripValue-${item.id}`);
+                const desktopNetBillAmountElement = document.getElementById(`netBillAmount-${item.id}`);
+                if (desktopBoxValueElement) desktopBoxValueElement.textContent = itemValues.boxValue;
+                if (desktopStripValueElement) desktopStripValueElement.textContent = itemValues.stripValue;
+                if (desktopNetBillAmountElement) desktopNetBillAmountElement.textContent = itemValues.netBillAmount;
+
+                const mobileNetBillAmountElement = document.querySelector(`#mobile-item-${item.id} #netBillAmount-${item.id}`);
+                if (mobileNetBillAmountElement) mobileNetBillAmountElement.textContent = itemValues.netBillAmount;
+            }
+
+            function deleteItem(id) {
+                currentData = currentData.filter(item => item.id !== id);
+                renderAllItems();
+            }
+
+            function updateTotalsAndChart() {
+                let totalNetBill = 0;
+                let totalNetBillWithoutTax = 0;
+                const chartData = [];
+
+                currentData.forEach(item => {
+                    const itemValues = calculateItemValues(item);
+                    const netBill = parseFloat(itemValues.netBillAmount);
+                    const netBillWithoutTax = parseFloat(itemValues.totalCalculatedValue);
+                    if (!isNaN(netBill) && netBill > 0) {
+                        totalNetBill += netBill;
+                        totalNetBillWithoutTax += netBillWithoutTax;
+                        chartData.push({
+                            sku: item.sku,
+                            netBill: netBill
+                        });
+                    }
+                });
+
+                const selectedCurrency = currencySelector.value;
+                const conversionRate = currencyRates[selectedCurrency];
+                const convertedTotal = totalNetBill * conversionRate;
+                const convertedTotalWithoutTax = totalNetBillWithoutTax * conversionRate;
+
+                totalValueWithoutTaxSpan.textContent = `${selectedCurrency} ${convertedTotalWithoutTax.toFixed(2)}`;
+                totalValueSpan.textContent = `${selectedCurrency} ${convertedTotal.toFixed(2)}`;
+                totalLakhsSpan.textContent = `${selectedCurrency} ${(convertedTotal / 100000).toFixed(2)}`;
+
+                animatePieChart(chartData, totalNetBill);
+            }
+
+            function animatePieChart(data, total) {
+                let startTime = null;
+                const duration = 500; 
+
+                function animate(currentTime) {
+                    if (startTime === null) startTime = currentTime;
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+
+                    drawPieChart(data, total, progress);
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                }
+                
+                requestAnimationFrame(animate);
+            }
+
+            function drawPieChart(data, total, progress) {
+                pieChartCtx.clearRect(0, 0, pieChartCanvas.width, pieChartCanvas.height);
+                chartLegend.innerHTML = '';
+
+                if (total === 0 || data.length === 0) {
+                    pieChartCtx.textAlign = 'center';
+                    pieChartCtx.fillStyle = '#64748b';
+                    pieChartCtx.font = '16px Inter';
+                    pieChartCtx.fillText('No data to display', pieChartCanvas.width / 2, pieChartCanvas.height / 2);
+                    return;
+                }
+
+                let currentAngle = 0;
+                const centerX = pieChartCanvas.width / 2;
+                const centerY = pieChartCanvas.height / 2;
+                const radius = Math.min(centerX, centerY) * 0.7;
+
+                data.forEach((item, index) => {
+                    const sliceAngle = (item.netBill / total) * 2 * Math.PI * progress;
+                    const color = chartColors[index % chartColors.length];
+
+                    pieChartCtx.fillStyle = color;
+                    pieChartCtx.beginPath();
+                    pieChartCtx.moveTo(centerX, centerY);
+                    pieChartCtx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+                    pieChartCtx.closePath();
+                    pieChartCtx.fill();
+
+                    if (progress === 1) { 
+                        const legendItem = document.createElement('div');
+                        legendItem.className = 'flex items-center space-x-2';
+                        legendItem.innerHTML = `
+                            <div class="w-4 h-4 rounded" style="background-color: ${color}"></div>
+                            <span class="text-sm text-gray-600">${item.sku}</span>
+                        `;
+                        chartLegend.appendChild(legendItem);
+                    }
+
+                    currentAngle += sliceAngle;
+                });
+            }
+
+            function renderAllItems() {
+                orderList.innerHTML = ''; 
+                currentData.forEach((item) => renderItem(item));
+                updateTotalsAndChart();
+            }
+
+            function toggleLockState(lock) {
+                isLocked = lock;
+                const inputs = orderList.querySelectorAll('input');
+                const deleteButtons = orderList.querySelectorAll('.delete-btn');
+                
+                inputs.forEach(input => {
+                    const fieldName = input.id.split('-')[0];
+                    // These fields should never be locked
+                    if (fieldName === 'unitStrip' || fieldName === 'unitBox') {
+                        input.disabled = false;
+                        input.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                    } else {
+                        input.disabled = lock;
+                        input.classList.toggle('bg-gray-100', lock);
+                        input.classList.toggle('cursor-not-allowed', lock);
+                    }
+                });
+                
+                // Toggle the tax input field's disabled state
+                taxInput.disabled = lock;
+                taxInput.classList.toggle('bg-gray-100', lock);
+                taxInput.classList.toggle('cursor-not-allowed', lock);
+
+                deleteButtons.forEach(btn => {
+                    btn.style.display = lock ? 'none' : 'block';
+                });
+
+                // The save and add buttons are only enabled when unlocked
+                saveBtn.disabled = lock;
+                saveBtn.classList.toggle('btn-disabled', lock);
+                saveBtn.classList.toggle('btn-primary', !lock);
+                
+                addProductBtn.disabled = lock;
+                addProductBtn.classList.toggle('btn-disabled', lock);
+                addProductBtn.classList.toggle('btn-add', !lock);
+
+                currencySelector.disabled = lock;
+                currencySelector.classList.toggle('bg-gray-100', lock);
+                currencySelector.classList.toggle('cursor-not-allowed', lock);
+
+                // The reset button is always active, so no need to toggle its disabled state
+            }
+
+            // --- Local Storage Functions ---
+            const localStorageKey = 'orderCalculatorState';
+
+            function saveState() {
+                const state = {
+                    data: currentData,
+                    currency: currencySelector.value,
+                    taxRate: taxInput.value
+                };
+                localStorage.setItem(localStorageKey, JSON.stringify(state));
+            }
+
+            function loadState() {
+                const savedState = localStorage.getItem(localStorageKey);
+                if (savedState) {
+                    const state = JSON.parse(savedState);
+                    currentData = state.data;
+                    currencySelector.value = state.currency || 'INR';
+                    taxInput.value = state.taxRate || '12';
+                }
+            }
+            
+            // --- Event Listeners ---
+            
+            orderList.addEventListener('input', (event) => {
+                const target = event.target;
+                const [field, id] = target.id.split('-');
+                const item = currentData.find(d => d.id == id);
+
+                if (item) {
+                    item[field] = target.value;
+                    updateCalculations(item);
+                    updateTotalsAndChart();
+                }
+            });
+
+            saveBtn.addEventListener('click', () => {
+                if (isLocked) return;
+                
+                toggleLockState(true);
+                saveState();
+                showModal('Your changes have been saved to this device and will persist. The settings are now locked.');
+            });
+
+            resetBtn.addEventListener('click', () => {
+                loadState(); 
+                renderAllItems(); 
+                toggleLockState(false); 
+                showModal('The fields have been unlocked and reverted to the last saved state.');
+            });
+
+            addProductBtn.addEventListener('click', () => {
+                if(isLocked) return;
+                const newId = currentData.length > 0 ? Math.max(...currentData.map(item => item.id)) + 1 : 1;
+                const newProduct = {
+                    id: newId,
+                    caseSize: "",
+                    boxPack: null, 
+                    sku: "",
+                    pts: 0,
+                    priceIncrement: 0,
+                    unitStrip: null,
+                    unitBox: null
+                };
+
+                currentData.push(newProduct);
+                renderItem(newProduct);
+                updateTotalsAndChart();
+            });
+
+            currencySelector.addEventListener('change', () => {
+                updateTotalsAndChart();
+            });
+
+            taxInput.addEventListener('input', () => {
+                updateTotalsAndChart();
+            });
+
+            // New Event Listeners for the User Manual
+            infoBtn.addEventListener('click', () => {
+                manualModal.classList.remove('hidden');
+                manualModal.classList.add('visible');
+            });
+
+            closeManualBtn.addEventListener('click', () => {
+                manualModal.classList.remove('visible');
+                manualModal.classList.add('hidden');
+            });
+
+
+            // --- Initial Load ---
+            window.addEventListener('load', () => {
+                loadState();
+                // Reset Unit(strip) and Unit(box) on every load
+                currentData.forEach(item => {
+                    item.unitStrip = null;
+                    item.unitBox = null;
+                });
+                renderAllItems();
+                // Always toggle to the locked state on initial load
+                toggleLockState(true); 
+                resizeCanvas();
+            });
+        })();
+    </script>
+</body>
+</html>
+
